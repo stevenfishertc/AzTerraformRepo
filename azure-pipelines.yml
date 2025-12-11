@@ -19,6 +19,10 @@ steps:
       inlineScript: |
         echo "Logging into Azure..."
 
+        echo "principalId=$servicePrincipalId"
+        echo "principalKey=$servicePrincipalKey"
+        echo "tenantId=$tenantId"
+
         az login --service-principal \
           --username "$servicePrincipalId" \
           --password "$servicePrincipalKey" \
