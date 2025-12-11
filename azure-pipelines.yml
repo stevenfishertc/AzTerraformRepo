@@ -13,7 +13,7 @@ steps:
   - task: AzureCLI@2
     displayName: "Azure Login"
     inputs:
-      azureSubscription: '606e824b-aaf7-4b4e-9057-b459f6a4436d'     # <-- your service connection
+      azureSubscription: 'stevens-service-conn'     # <-- your service connection
       scriptType: bash
       scriptLocation: inlineScript
       inlineScript: |
