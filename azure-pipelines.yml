@@ -9,21 +9,40 @@ pool:
 steps:
   - checkout: self
 
+  # Azure Login using Service Connection
+  - task: AzureCLI@2
+    displayName: "Azure Login"
+    inputs:
+      azureSubscription: '606e824b-aaf7-4b4e-9057-b459f6a4436d'     # <-- your service connection
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        echo "Logged into Azure"
+        az account show
+
+  # Install Terraform
   - script: |
       sudo apt-get update -y
       sudo apt-get install -y wget unzip
-      wget https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip -O terraform.zip
-      unzip terraform.zip
-      chmod +x terraform
-      sudo install terraform /usr/local/bin/
+      wget https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip
+      unzip terraform_1.9.8_linux_amd64.zip
+      sudo mv terraform /usr/local/bin/
       terraform -version
     displayName: "Install Terraform"
 
+  # Terraform Init
+  - script: |
+      echo "Running terraform init..."
+      terraform init
+    displayName: "Terraform Init"
+    workingDirectory: $(System.DefaultWorkingDirectory)
+
+  # Terraform Apply
   - script: |
       echo "Terraform files found:"
       ls -l *.tf || true
 
-      terraform init -no-color
-      terraform apply -auto-approve -no-color
+      echo "Running terraform apply..."
+      terraform apply -auto-approve
+    displayName: "Terraform Apply"
     workingDirectory: $(System.DefaultWorkingDirectory)
-    displayName: "Terraform Init and Apply"
