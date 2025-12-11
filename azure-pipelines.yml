@@ -18,7 +18,8 @@ steps:
       scriptLocation: inlineScript
       inlineScript: |
         echo "Logged into Azure"
-        az account show
+        export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+        export ARM_TENANT_ID=$(az account show --query tenantId -o tsv)
 
   # Install Terraform
   - script: |
