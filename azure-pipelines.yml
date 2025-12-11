@@ -64,11 +64,9 @@ stages:
   dependsOn: Dev
   condition: succeeded()   # Only runs if Dev succeeded
 
-  # Add environment to require approval
-  environment: "production-env"  # <-- Configure approval in Azure DevOps Environments
-
   jobs:
     - job: TerraformProd
+      environment: "production-env" # Add environment to require approval
       displayName: "Terraform Apply (Prod)"
       pool:
         vmImage: 'ubuntu-latest'
