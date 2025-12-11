@@ -9,54 +9,38 @@ pool:
 steps:
   - checkout: self
 
-  # Azure Login using Service Connection
   - task: AzureCLI@2
-    displayName: "Azure Login via Bash"
+    displayName: "Azure Login + Terraform Init/Apply"
     inputs:
       azureSubscription: 'stevens-service-conn'
       scriptType: bash
       scriptLocation: inlineScript
       inlineScript: |
-        echo "Logging into Azure..."
-
-        echo "SP ID: $servicePrincipalId"
-        echo "SP Key: $servicePrincipalKey"
-        echo "Tenant: $tenantId"
-        echo "Sub: $subscriptionId"
-
-        az login --service-principal \
-          --username "$servicePrincipalId" \
-          --password "$servicePrincipalKey" \
-          --tenant "$tenantId"
-
-        az account set --subscription "$subscriptionId"
-
-        echo "Logged in:"
+        echo "Authenticated Azure Context:"
         az account show
 
-  # Install Terraform
-  - script: |
-      sudo apt-get update -y
-      sudo apt-get install -y wget unzip
-      wget https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip
-      unzip terraform_1.9.8_linux_amd64.zip
-      sudo mv terraform /usr/local/bin/
-      terraform -version
-    displayName: "Install Terraform"
+        echo "Getting Azure account info..."
 
-  # Terraform Init
-  - script: |
-      echo "Running terraform init..."
-      terraform init
-    displayName: "Terraform Init"
-    workingDirectory: $(System.DefaultWorkingDirectory)
+        TENANT_ID=$(az account show --query tenantId -o tsv)
+        SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+        ACCOUNT_NAME=$(az account show --query name -o tsv)
+        ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
 
-  # Terraform Apply
-  - script: |
-      echo "Terraform files found:"
-      ls -l *.tf || true
+        echo "Tenant ID: $TENANT_ID"
+        echo "Subscription ID: $SUBSCRIPTION_ID"
+        echo "Account Name: $ACCOUNT_NAME"
+        echo "Account User Type: $ACCOUNT_USER_TYPE"
 
-      echo "Running terraform apply..."
-      terraform apply -auto-approve
-    displayName: "Terraform Apply"
-    workingDirectory: $(System.DefaultWorkingDirectory)
+        echo "Installing Terraform..."
+        sudo apt-get update -y
+        sudo apt-get install -y wget unzip
+        wget https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip
+        unzip terraform_1.9.8_linux_amd64.zip
+        sudo mv terraform /usr/local/bin/
+        terraform -version
+
+        echo "Running terraform init..."
+        terraform init
+
+        echo "Running terraform apply..."
+        terraform apply -auto-approve
