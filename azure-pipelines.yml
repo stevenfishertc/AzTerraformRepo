@@ -13,12 +13,25 @@ steps:
   - task: AzureCLI@2
     displayName: "Azure Login"
     inputs:
-      azureSubscription: 'stevens-service-conn'     # <-- your service connection
+      azureSubscription: 'stevens-service-conn'
       scriptType: bash
       scriptLocation: inlineScript
       inlineScript: |
-        echo "Logged into Azure"
+        echo "Azure login completed."
+
         az account show
+
+        echo "Exporting ARM_* variables for Terraform"
+
+        export ARM_CLIENT_ID=$servicePrincipalId
+        export ARM_CLIENT_SECRET=$servicePrincipalKey
+        export ARM_TENANT_ID=$tenantId
+        export ARM_SUBSCRIPTION_ID=$subscriptionId
+
+        echo "ARM_CLIENT_ID=$ARM_CLIENT_ID"
+        echo "ARM_TENANT_ID=$ARM_TENANT_ID"
+        echo "ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID"
+
 
   # Install Terraform
   - script: |
