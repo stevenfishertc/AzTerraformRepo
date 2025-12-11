@@ -50,6 +50,10 @@ stages:
             scriptLocation: inlineScript
             workingDirectory: environments/dev
             inlineScript: |
+              TENANT_ID=$(az account show --query tenantId -o tsv)
+              SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+              ACCOUNT_NAME=$(az account show --query name -o tsv)
+              ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
               terraform apply -auto-approve tfplan
 
 # ---------------------------------------------------
@@ -103,6 +107,10 @@ stages:
             scriptLocation: inlineScript
             workingDirectory: environments/prod
             inlineScript: |
+              TENANT_ID=$(az account show --query tenantId -o tsv)
+              SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+              ACCOUNT_NAME=$(az account show --query name -o tsv)
+              ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
               terraform apply -auto-approve tfplan
 
 
