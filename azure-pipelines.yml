@@ -1,0 +1,29 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - checkout: self
+
+  - script: |
+      sudo apt-get update -y
+      sudo apt-get install -y wget unzip
+      wget https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip -O terraform.zip
+      unzip terraform.zip
+      chmod +x terraform
+      sudo install terraform /usr/local/bin/
+      terraform -version
+    displayName: "Install Terraform"
+
+  - script: |
+      echo "Terraform files found:"
+      ls -l *.tf || true
+
+      terraform init -no-color
+      terraform apply -auto-approve -no-color
+    workingDirectory: $(System.DefaultWorkingDirectory)
+    displayName: "Terraform Init and Apply"
