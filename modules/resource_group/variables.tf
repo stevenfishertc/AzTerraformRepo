@@ -1,6 +1,11 @@
-variable "name" {
+variable "prefix" {
   type = string
-  default = "default-rg"
+  default = "steven"
+}
+
+variable "environment" {
+  type = string
+  default = "test"
 }
 
 variable "location" {

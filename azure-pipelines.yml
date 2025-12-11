@@ -3,44 +3,152 @@ trigger:
     include:
       - main
 
-pool:
-  vmImage: 'ubuntu-latest'
 
-steps:
-  - checkout: self
+stages:
+# ---------------------------------------------------
+# 1. DEV DEPLOYMENT
+# ---------------------------------------------------
+- stage: Dev
+  displayName: "Deploy to Development"
+  jobs:
+    - job: TerraformDev
+      displayName: "Terraform Apply (Dev)"
+      pool:
+        vmImage: 'ubuntu-latest'
 
-  - task: AzureCLI@2
-    displayName: "Azure Login + Terraform Init/Apply"
-    inputs:
-      azureSubscription: 'stevens-service-conn'
-      scriptType: bash
-      scriptLocation: inlineScript
-      inlineScript: |
-        echo "Authenticated Azure Context:"
-        az account show
+      steps:
+        - checkout: self
 
-        echo "Getting Azure account info..."
+        - task: TerraformInstaller@1
+          displayName: "Install Terraform"
 
-        TENANT_ID=$(az account show --query tenantId -o tsv)
-        SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-        ACCOUNT_NAME=$(az account show --query name -o tsv)
-        ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
+        - task: AzureCLI@2
+          displayName: "Terraform Init (Dev)"
+          inputs:
+            azureSubscription: "stevens-service-conn"     # <-- Update
+            scriptType: bash
+            scriptLocation: inlineScript
+            workingDirectory: environments/dev
+            inlineScript: |
+              terraform init
 
-        echo "Tenant ID: $TENANT_ID"
-        echo "Subscription ID: $SUBSCRIPTION_ID"
-        echo "Account Name: $ACCOUNT_NAME"
-        echo "Account User Type: $ACCOUNT_USER_TYPE"
+        - task: AzureCLI@2
+          displayName: "Terraform Plan (Dev)"
+          inputs:
+            azureSubscription: "stevens-service-conn"
+            scriptType: bash
+            scriptLocation: inlineScript
+            workingDirectory: environments/dev
+            inlineScript: |
+              terraform plan -var-file="terraform.tfvars" -out=tfplan
 
-        echo "Installing Terraform..."
-        sudo apt-get update -y
-        sudo apt-get install -y wget unzip
-        wget https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip
-        unzip terraform_1.9.8_linux_amd64.zip
-        sudo mv terraform /usr/local/bin/
-        terraform -version
+        - task: AzureCLI@2
+          displayName: "Terraform Apply (Dev)"
+          inputs:
+            azureSubscription: "stevens-service-conn"
+            scriptType: bash
+            scriptLocation: inlineScript
+            workingDirectory: environments/dev
+            inlineScript: |
+              terraform apply -auto-approve tfplan
 
-        echo "Running terraform init..."
-        terraform init
+# ---------------------------------------------------
+# 2. PROD DEPLOYMENT (Manual Approval Before Running)
+# ---------------------------------------------------
+- stage: Prod
+  displayName: "Deploy to Production"
+  dependsOn: Dev
+  condition: succeeded()   # Only runs if Dev succeeded
 
-        echo "Running terraform apply..."
-        terraform apply -auto-approve
+  # Add environment to require approval
+  environment: "production-env"  # <-- Configure approval in Azure DevOps Environments
+
+  jobs:
+    - job: TerraformProd
+      displayName: "Terraform Apply (Prod)"
+      pool:
+        vmImage: 'ubuntu-latest'
+
+      steps:
+        - checkout: self
+
+        - task: TerraformInstaller@1
+          displayName: "Install Terraform"
+
+        - task: AzureCLI@2
+          displayName: "Terraform Init (Prod)"
+          inputs:
+            azureSubscription: "stevens-service-conn"
+            scriptType: bash
+            scriptLocation: inlineScript
+            workingDirectory: environments/prod
+            inlineScript: |
+              terraform init
+
+        - task: AzureCLI@2
+          displayName: "Terraform Plan (Prod)"
+          inputs:
+            azureSubscription: "stevens-service-conn"
+            scriptType: bash
+            scriptLocation: inlineScript
+            workingDirectory: environments/prod
+            inlineScript: |
+              terraform plan -var-file="terraform.tfvars" -out=tfplan
+
+        - task: AzureCLI@2
+          displayName: "Terraform Apply (Prod)"
+          inputs:
+            azureSubscription: "stevens-service-conn"
+            scriptType: bash
+            scriptLocation: inlineScript
+            workingDirectory: environments/prod
+            inlineScript: |
+              terraform apply -auto-approve tfplan
+
+
+
+
+
+
+
+# pool:
+#   vmImage: 'ubuntu-latest'
+
+# steps:
+#   - checkout: self
+
+#   - task: AzureCLI@2
+#     displayName: "Azure Login + Terraform Init/Apply"
+#     inputs:
+#       azureSubscription: 'stevens-service-conn'
+#       scriptType: bash
+#       scriptLocation: inlineScript
+#       inlineScript: |
+#         echo "Authenticated Azure Context:"
+#         az account show
+
+#         echo "Getting Azure account info..."
+
+#         TENANT_ID=$(az account show --query tenantId -o tsv)
+#         SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+#         ACCOUNT_NAME=$(az account show --query name -o tsv)
+#         ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
+
+#         echo "Tenant ID: $TENANT_ID"
+#         echo "Subscription ID: $SUBSCRIPTION_ID"
+#         echo "Account Name: $ACCOUNT_NAME"
+#         echo "Account User Type: $ACCOUNT_USER_TYPE"
+
+#         echo "Installing Terraform..."
+#         sudo apt-get update -y
+#         sudo apt-get install -y wget unzip
+#         wget https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip
+#         unzip terraform_1.9.8_linux_amd64.zip
+#         sudo mv terraform /usr/local/bin/
+#         terraform -version
+
+#         echo "Running terraform init..."
+#         terraform init
+
+#         echo "Running terraform apply..."
+#         terraform apply -auto-approve
