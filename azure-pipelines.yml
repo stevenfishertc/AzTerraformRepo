@@ -9,14 +9,19 @@ pool:
 steps:
   - checkout: self
 
+  # Install Terraform
   - script: |
-      curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-      sudo apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-      sudo apt-get update && sudo apt-get install terraform -y
+      sudo apt-get update -y
+      sudo apt-get install -y wget unzip
+      wget https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip
+      unzip terraform_1.9.8_linux_amd64.zip
+      sudo mv terraform /usr/local/bin/
+      terraform -version
     displayName: "Install Terraform"
 
+  # Terraform Init + Apply
   - script: |
       terraform init
       terraform apply -auto-approve
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    workingDirectory: $(System.DefaultWorkingDirectory)
     displayName: "Terraform Init and Apply"
