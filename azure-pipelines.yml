@@ -20,10 +20,12 @@ stages:
 
         - script: |
             echo "Installing Terraform..."
-            curl -sLo terraform.zip https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip
-            unzip terraform.zip
+            sudo apt-get update -y
+            sudo apt-get install -y wget unzip
+            wget https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip
+            unzip terraform_1.9.8_linux_amd64.zip
             sudo mv terraform /usr/local/bin/
-            terraform version
+            terraform -version
           displayName: "Install Terraform"
 
         - task: AzureCLI@2
@@ -38,6 +40,12 @@ stages:
               SUBSCRIPTION_ID=$(az account show --query id -o tsv)
               ACCOUNT_NAME=$(az account show --query name -o tsv)
               ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
+
+              echo "Tenant ID: $TENANT_ID"
+              echo "Subscription ID: $SUBSCRIPTION_ID"
+              echo "Account Name: $ACCOUNT_NAME"
+              echo "Account User Type: $ACCOUNT_USER_TYPE"
+
               terraform init
 
         - task: AzureCLI@2
@@ -52,6 +60,12 @@ stages:
               SUBSCRIPTION_ID=$(az account show --query id -o tsv)
               ACCOUNT_NAME=$(az account show --query name -o tsv)
               ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
+
+              echo "Tenant ID: $TENANT_ID"
+              echo "Subscription ID: $SUBSCRIPTION_ID"
+              echo "Account Name: $ACCOUNT_NAME"
+              echo "Account User Type: $ACCOUNT_USER_TYPE"
+
               terraform plan -var-file="terraform.tfvars" -out=tfplan
 
         - task: AzureCLI@2
@@ -66,6 +80,12 @@ stages:
               SUBSCRIPTION_ID=$(az account show --query id -o tsv)
               ACCOUNT_NAME=$(az account show --query name -o tsv)
               ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
+
+              echo "Tenant ID: $TENANT_ID"
+              echo "Subscription ID: $SUBSCRIPTION_ID"
+              echo "Account Name: $ACCOUNT_NAME"
+              echo "Account User Type: $ACCOUNT_USER_TYPE"
+
               terraform apply -auto-approve tfplan
 
 # ---------------------------------------------------
@@ -89,10 +109,12 @@ stages:
 
               - script: |
                   echo "Installing Terraform..."
-                  curl -sLo terraform.zip https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip
-                  unzip terraform.zip
+                  sudo apt-get update -y
+                  sudo apt-get install -y wget unzip
+                  wget https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip
+                  unzip terraform_1.9.8_linux_amd64.zip
                   sudo mv terraform /usr/local/bin/
-                  terraform version
+                  terraform -version
                 displayName: "Install Terraform"
 
               - task: AzureCLI@2
@@ -107,6 +129,12 @@ stages:
                     SUBSCRIPTION_ID=$(az account show --query id -o tsv)
                     ACCOUNT_NAME=$(az account show --query name -o tsv)
                     ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
+
+                    echo "Tenant ID: $TENANT_ID"
+                    echo "Subscription ID: $SUBSCRIPTION_ID"
+                    echo "Account Name: $ACCOUNT_NAME"
+                    echo "Account User Type: $ACCOUNT_USER_TYPE"
+
                     terraform init
 
               - task: AzureCLI@2
@@ -121,6 +149,12 @@ stages:
                     SUBSCRIPTION_ID=$(az account show --query id -o tsv)
                     ACCOUNT_NAME=$(az account show --query name -o tsv)
                     ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
+
+                    echo "Tenant ID: $TENANT_ID"
+                    echo "Subscription ID: $SUBSCRIPTION_ID"
+                    echo "Account Name: $ACCOUNT_NAME"
+                    echo "Account User Type: $ACCOUNT_USER_TYPE"
+
                     terraform plan -var-file="terraform.tfvars" -out=tfplan
 
               - task: AzureCLI@2
@@ -135,4 +169,63 @@ stages:
                     SUBSCRIPTION_ID=$(az account show --query id -o tsv)
                     ACCOUNT_NAME=$(az account show --query name -o tsv)
                     ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
+
+                    echo "Tenant ID: $TENANT_ID"
+                    echo "Subscription ID: $SUBSCRIPTION_ID"
+                    echo "Account Name: $ACCOUNT_NAME"
+                    echo "Account User Type: $ACCOUNT_USER_TYPE"
+
                     terraform apply -auto-approve tfplan
+
+
+
+
+
+
+
+# trigger:
+#   branches:
+#     include:
+#       - main
+
+# pool:
+#   vmImage: 'ubuntu-latest'
+
+# steps:
+#   - checkout: self
+
+#   - task: AzureCLI@2
+#     displayName: "Azure Login + Terraform Init/Apply"
+#     inputs:
+#       azureSubscription: 'stevens-service-conn'
+#       scriptType: bash
+#       scriptLocation: inlineScript
+#       inlineScript: |
+#         echo "Authenticated Azure Context:"
+#         az account show
+
+#         echo "Getting Azure account info..."
+
+#         TENANT_ID=$(az account show --query tenantId -o tsv)
+#         SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+#         ACCOUNT_NAME=$(az account show --query name -o tsv)
+#         ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
+
+#         echo "Tenant ID: $TENANT_ID"
+#         echo "Subscription ID: $SUBSCRIPTION_ID"
+#         echo "Account Name: $ACCOUNT_NAME"
+#         echo "Account User Type: $ACCOUNT_USER_TYPE"
+
+#         echo "Installing Terraform..."
+#         sudo apt-get update -y
+#         sudo apt-get install -y wget unzip
+#         wget https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip
+#         unzip terraform_1.9.8_linux_amd64.zip
+#         sudo mv terraform /usr/local/bin/
+#         terraform -version
+
+#         echo "Running terraform init..."
+#         terraform init
+
+#         echo "Running terraform apply..."
+#         terraform apply -auto-approve
