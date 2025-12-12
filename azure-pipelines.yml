@@ -41,20 +41,7 @@ stages:
               export ARM_CLIENT_SECRET=$servicePrincipalKey
               export ARM_TENANT_ID=$tenantId
               export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-
-              echo "Client ID: $servicePrincipalId"
-              echo "Client Secret: $servicePrincipalKey"
-
-              TENANT_ID=$(az account show --query tenantId -o tsv)
-              SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-              ACCOUNT_NAME=$(az account show --query name -o tsv)
-              ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
-
-              echo "Tenant ID: $TENANT_ID"
-              echo "Subscription ID: $SUBSCRIPTION_ID"
-              echo "Account Name: $ACCOUNT_NAME"
-              echo "Account User Type: $ACCOUNT_USER_TYPE"
-
+              
               terraform init
 
         - task: AzureCLI@2
@@ -65,16 +52,6 @@ stages:
             scriptLocation: inlineScript
             workingDirectory: environments/dev
             inlineScript: |
-              TENANT_ID=$(az account show --query tenantId -o tsv)
-              SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-              ACCOUNT_NAME=$(az account show --query name -o tsv)
-              ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
-
-              echo "Tenant ID: $TENANT_ID"
-              echo "Subscription ID: $SUBSCRIPTION_ID"
-              echo "Account Name: $ACCOUNT_NAME"
-              echo "Account User Type: $ACCOUNT_USER_TYPE"
-
               terraform plan -var-file="terraform.tfvars" -out=tfplan
 
         - task: AzureCLI@2
@@ -85,16 +62,6 @@ stages:
             scriptLocation: inlineScript
             workingDirectory: environments/dev
             inlineScript: |
-              TENANT_ID=$(az account show --query tenantId -o tsv)
-              SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-              ACCOUNT_NAME=$(az account show --query name -o tsv)
-              ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
-
-              echo "Tenant ID: $TENANT_ID"
-              echo "Subscription ID: $SUBSCRIPTION_ID"
-              echo "Account Name: $ACCOUNT_NAME"
-              echo "Account User Type: $ACCOUNT_USER_TYPE"
-
               terraform apply -auto-approve tfplan
 
 # ---------------------------------------------------
@@ -139,19 +106,6 @@ stages:
                     export ARM_TENANT_ID=$tenantId
                     export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-                    echo "Client ID: $servicePrincipalId"
-                    echo "Client Secret: $servicePrincipalKey"
-
-                    TENANT_ID=$(az account show --query tenantId -o tsv)
-                    SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-                    ACCOUNT_NAME=$(az account show --query name -o tsv)
-                    ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
-
-                    echo "Tenant ID: $TENANT_ID"
-                    echo "Subscription ID: $SUBSCRIPTION_ID"
-                    echo "Account Name: $ACCOUNT_NAME"
-                    echo "Account User Type: $ACCOUNT_USER_TYPE"
-
                     terraform init
 
               - task: AzureCLI@2
@@ -162,16 +116,6 @@ stages:
                   scriptLocation: inlineScript
                   workingDirectory: environments/prod
                   inlineScript: |
-                    TENANT_ID=$(az account show --query tenantId -o tsv)
-                    SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-                    ACCOUNT_NAME=$(az account show --query name -o tsv)
-                    ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
-
-                    echo "Tenant ID: $TENANT_ID"
-                    echo "Subscription ID: $SUBSCRIPTION_ID"
-                    echo "Account Name: $ACCOUNT_NAME"
-                    echo "Account User Type: $ACCOUNT_USER_TYPE"
-
                     terraform plan -var-file="terraform.tfvars" -out=tfplan
 
               - task: AzureCLI@2
@@ -182,16 +126,6 @@ stages:
                   scriptLocation: inlineScript
                   workingDirectory: environments/prod
                   inlineScript: |
-                    TENANT_ID=$(az account show --query tenantId -o tsv)
-                    SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-                    ACCOUNT_NAME=$(az account show --query name -o tsv)
-                    ACCOUNT_USER_TYPE=$(az account show --query user.type -o tsv)
-
-                    echo "Tenant ID: $TENANT_ID"
-                    echo "Subscription ID: $SUBSCRIPTION_ID"
-                    echo "Account Name: $ACCOUNT_NAME"
-                    echo "Account User Type: $ACCOUNT_USER_TYPE"
-
                     terraform apply -auto-approve tfplan
 
 
