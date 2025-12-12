@@ -9,6 +9,6 @@ terraform {
     resource_group_name  = "steven-tfstate-rg"
     storage_account_name = "steven-tfstateaccount"
     container_name       = "tfstate"
-    key                  = "dev.terraform.tfstate"   # dev folder
+    key                  = "prod.terraform.tfstate"   # prod folder
   }
 }
