@@ -22,6 +22,8 @@ module "network" {
 module "compute" {
   source              = "../../modules/compute"
 
+  prefix             = var.prefix
+  environment        = var.environment
   vm_name            = "VM"
   resource_group_name = module.rg.name
   location           = var.location
