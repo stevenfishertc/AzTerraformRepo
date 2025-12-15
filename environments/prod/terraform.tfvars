@@ -1,6 +1,6 @@
 prefix  = "steven"
 environment = "prod"
-location = "eastus"
+location = "eastus2"
 tags = {
   environment = "prod"
   owner       = "steven-fisher"
