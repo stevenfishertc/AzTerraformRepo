@@ -9,5 +9,6 @@ variable "vm_size" {
 variable "admin_user" {
   default = "azureuser"
 }
-variable "ssh_key_path" {}
+variable "ssh_public_key" {}
+# variable "key_vault_id" {}
 variable "nic_id" {}

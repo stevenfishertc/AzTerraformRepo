@@ -7,6 +7,14 @@ module "rg" {
   tags     = var.tags
 }
 
+module "secrets" {
+  source   = "../../modules/secrets"
+
+  prefix   = var.prefix
+  environment = var.environment
+  resource_group_name = module.rg.name
+}
+
 module "network" {
   source              = "../../modules/network"
 
@@ -28,6 +36,7 @@ module "compute" {
   resource_group_name = module.rg.name
   location           = var.location
   admin_user         = "steven"
-  ssh_key_path       = "~/.ssh/id_rsa.pub"
+  ssh_public_key     = module.secrets.ssh_public_key
+  # key_vault_id       = module.secrets.key_vault_id
   nic_id             = module.network.nic_id
 }

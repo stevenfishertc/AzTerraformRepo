@@ -6,9 +6,13 @@ resource "azurerm_linux_virtual_machine" "vm" {
   admin_username      = var.admin_user
   network_interface_ids = [var.nic_id]
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   admin_ssh_key {
     username   = var.admin_user
-    public_key = file(var.ssh_key_path)
+    public_key = var.ssh_public_key
   }
 
   os_disk {
@@ -23,3 +27,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 }
+
+# resource "azurerm_role_assignment" "vm_kv_access" {
+#   scope                = var.key_vault_id
+#   role_definition_name = "Key Vault Secrets User"
+#   principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+# }
